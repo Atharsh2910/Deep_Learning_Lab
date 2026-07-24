@@ -1,0 +1,543 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,longtable}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\setlist{nosep}
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codegray}{RGB}{100,100,100}
+\definecolor{codegreen}{RGB}{0,110,40}
+\definecolor{codepurple}{RGB}{110,40,140}
+
+\lstdefinestyle{python}{
+    backgroundcolor=\color{codebg},
+    commentstyle=\color{codegray}\itshape,
+    keywordstyle=\color{codepurple}\bfseries,
+    stringstyle=\color{codegreen},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    tabsize=4,
+    language=Python,
+    columns=fullflexible,
+    keepspaces=true
+}
+
+\lstdefinestyle{output}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    tabsize=2,
+    columns=fullflexible,
+    keepspaces=true
+}
+
+\begin{document}
+
+\begin{center}
+{\Large\textbf{Shiv Nadar University Chennai}}\\
+\textbf{CS3807 -- Deep Learning Laboratory}\\
+\textbf{Experiment 2}\\
+{\large\textbf{Implementation of a Multi-Layer Perceptron (MLP) for Multi-Class Image Classification}}
+\end{center}
+
+\renewcommand{\arraystretch}{1.25}
+
+\begin{tabular}{|p{3.8cm}|p{8cm}|p{2cm}|}
+\hline
+Degree \& Branch & B.Tech Artificial Intelligence \& Data Science & Semester V\\ \hline
+Subject Code \& Name & CS3807 -- Deep Learning Laboratory & AY: 2026--27\\ \hline
+\end{tabular}
+
+\begin{tabular}{|p{3.5cm}|p{8cm}|}
+\hline
+\textbf{Name} & {ATHARSH S U}\\ \hline
+\textbf{Register Number} &{24011101008} \\ \hline
+\textbf{Roll Number} &{24110049} \\ \hline
+\textbf{Class} & {AI-DS 'A'}\\ \hline
+\end{tabular}
+\vspace{3mm}
+
+
+\section*{1. Objective}
+Implement an MLP using TensorFlow/Keras on the Fashion-MNIST dataset. Learn image preprocessing, flattening, model construction, training, evaluation, and automated hyperparameter optimization.
+
+\section*{2. Learning Outcomes}
+Students will be able to:
+\begin{enumerate}
+\item Explain the architecture of an MLP.
+\item Preprocess image datasets.
+\item Build and train an MLP.
+\item Evaluate classification performance.
+\item Perform automated hyperparameter optimization.
+\item Recommend the best model configuration.
+\end{enumerate}
+
+\section*{3. Background Theory}
+An MLP consists of an input layer, hidden layers and an output layer.
+
+\[
+z^{(l)}=W^{(l)}a^{(l-1)}+b^{(l)},\qquad
+a^{(l)}=f(z^{(l)})
+\]
+
+Output layer:
+\[
+\hat y=\mathrm{Softmax}(z)
+\]
+
+Loss:
+\[
+L=-\sum_i y_i\log(\hat y_i)
+\]
+
+Recommended architecture:
+
+\begin{center}
+784 $\rightarrow$ Dense(128, ReLU) $\rightarrow$ Dense(64, ReLU) $\rightarrow$ Dense(10, Softmax)
+\end{center}
+
+\section*{4. Dataset}
+Dataset: Fashion-MNIST
+
+Training Images: 60,000 \\
+Testing Images: 10,000 \\
+Classes: 10 \\
+Image Size: $28\times28$
+
+\subsection*{Dataset Exploration Output}
+\begin{lstlisting}[style=output]
+Dataset Summary
+----------------------------------------
+Training images shape : (60000, 28, 28)
+Training labels shape : (60000,)
+Testing images shape  : (10000, 28, 28)
+Testing labels shape  : (10000,)
+Number of classes     : 10
+Pixel value range     : [0, 255]
+
+TensorFlow version: 2.20.0
+GPU available: [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]
+\end{lstlisting}
+
+\section*{5. Image Preprocessing}
+
+Fashion-MNIST images are stored as $28\times28$ matrices. Dense layers require a one-dimensional feature vector.
+
+\[
+28\times28=784
+\]
+
+Example:
+
+\[
+\begin{bmatrix}
+10&20\\30&40
+\end{bmatrix}
+\rightarrow
+[10,20,30,40]
+\]
+
+Preprocessing performed:
+\begin{enumerate}
+\item Load Fashion-MNIST.
+\item Display sample images.
+\item Flatten images.
+\item Normalize pixels to [0,1].
+\item Convert labels into one-hot vectors.
+\end{enumerate}
+
+\subsection*{Shapes Before and After Preprocessing}
+\begin{lstlisting}[style=output]
+Shapes BEFORE preprocessing
+----------------------------------------
+x_train: (60000, 28, 28), dtype=uint8
+x_test : (10000, 28, 28), dtype=uint8
+y_train: (60000,), dtype=uint8
+y_test : (10000,), dtype=uint8
+
+Shapes AFTER preprocessing
+----------------------------------------
+x_train: (60000, 784), dtype=float32, range=[0.0, 1.0]
+x_test : (10000, 784), dtype=float32, range=[0.0, 1.0]
+y_train: (60000, 10), dtype=float32
+y_test : (10000, 10), dtype=float32
+
+Example: flatten of a 2x2 block [[10,20],[30,40]] -> [10,20,30,40]
+[10 20 30 40]
+\end{lstlisting}
+
+\section*{6. Experimental Procedure}
+
+\textbf{Task 1: Dataset Exploration}
+\begin{itemize}
+\item Load Fashion-MNIST.
+\item Print dataset dimensions.
+\item Display ten sample images.
+\item Plot class distribution.
+\end{itemize}
+
+
+\bigskip
+\textbf{Task 2: Data Preprocessing}
+\begin{itemize}
+\item Flatten images.
+\item Normalize pixel values.
+\item Print tensor shapes before and after preprocessing.
+\end{itemize}
+
+
+\bigskip
+\textbf{Task 3: Model Construction}
+Construct an MLP with
+
+\begin{itemize}
+\item Input layer (784)
+\item Dense(128, ReLU)
+\item Dense(64, ReLU)
+\item Dense(10, Softmax)
+\end{itemize}
+
+Display \texttt{model.summary()}.
+
+\textbf{Model Summary:}
+\begin{lstlisting}[style=output]
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ dense (Dense)                   │ (None, 128)            │       100,480 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_1 (Dense)                 │ (None, 64)             │         8,256 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_2 (Dense)                 │ (None, 10)             │           650 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+\end{lstlisting}
+
+\bigskip
+\textbf{Task 4: Model Training}
+
+
+\begin{itemize}
+\item Optimizer: Adam
+\item Loss: Categorical Cross Entropy
+\item Metric: Accuracy
+\end{itemize}
+
+Train for 20 epochs with batch size 32.
+
+
+\begin{lstlisting}[style=output]
+Epoch 1/20
+  73/1688 ━━━━━━━━━━━━━━━━━━━━ 3s 2ms/step - accuracy: 0.5004 - loss: 1.4556
+I0000 00:00:1784737546.985625      81 device_compiler.h:196] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 8s 3ms/step - accuracy: 0.8183 - loss: 0.5035 - val_accuracy: 0.8503 - val_loss: 0.4053
+Epoch 2/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.8637 - loss: 0.3737 - val_accuracy: 0.8635 - val_loss: 0.3742
+Epoch 3/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.8770 - loss: 0.3349 - val_accuracy: 0.8623 - val_loss: 0.3754
+Epoch 4/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.8852 - loss: 0.3090 - val_accuracy: 0.8695 - val_loss: 0.3649
+Epoch 5/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.8922 - loss: 0.2892 - val_accuracy: 0.8698 - val_loss: 0.3679
+Epoch 6/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.8979 - loss: 0.2741 - val_accuracy: 0.8727 - val_loss: 0.3667
+Epoch 7/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.9025 - loss: 0.2603 - val_accuracy: 0.8692 - val_loss: 0.3768
+Epoch 8/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.9058 - loss: 0.2499 - val_accuracy: 0.8767 - val_loss: 0.3628
+Epoch 9/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.9103 - loss: 0.2384 - val_accuracy: 0.8783 - val_loss: 0.3542
+Epoch 10/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.9139 - loss: 0.2271 - val_accuracy: 0.8803 - val_loss: 0.3605
+Epoch 11/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.9169 - loss: 0.2195 - val_accuracy: 0.8802 - val_loss: 0.3588
+Epoch 12/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.9200 - loss: 0.2103 - val_accuracy: 0.8843 - val_loss: 0.3679
+Epoch 13/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.9225 - loss: 0.2034 - val_accuracy: 0.8808 - val_loss: 0.3820
+...
+Epoch 20/20
+1688/1688 ━━━━━━━━━━━━━━━━━━━━ 4s 2ms/step - accuracy: 0.9373 - loss: 0.1640 - val_accuracy: 0.8828 - val_loss: 0.4168
+
+Training completed in 84.9 seconds
+\end{lstlisting}
+
+\bigskip
+\textbf{Task 5: Model Evaluation}
+
+\begin{lstlisting}[style=output]
+Baseline Model — Test Set Metrics
+----------------------------------------
+Accuracy : 0.8790
+Precision: 0.8795
+Recall   : 0.8790
+F1-score : 0.8777
+
+Classification Report
+----------------------------------------
+              precision    recall  f1-score   support
+
+ T-shirt/top       0.78      0.88      0.83      1000
+     Trouser       0.99      0.96      0.98      1000
+    Pullover       0.83      0.78      0.80      1000
+       Dress       0.83      0.92      0.87      1000
+        Coat       0.78      0.82      0.80      1000
+      Sandal       0.96      0.96      0.96      1000
+       Shirt       0.76      0.61      0.68      1000
+     Sneaker       0.92      0.97      0.94      1000
+         Bag       0.98      0.97      0.97      1000
+  Ankle boot       0.97      0.92      0.95      1000
+
+    accuracy                           0.88     10000
+   macro avg       0.88      0.88      0.88     10000
+weighted avg       0.88      0.88      0.88     10000
+\end{lstlisting}
+
+\section*{7. Source Code}
+\textbf{Repository Link:}
+\textbf{\url{https://github.com/Atharsh2910/LAB2-MLP}
+}
+\section*{8. Hyperparameter Optimization}
+Hyperparameter optimization was performed using \textbf{RandomizedSearchCV} together with the SciKeras \texttt{KerasClassifier} wrapper, using 5-fold cross-validation.
+
+\begin{center}
+\begin{tabular}{|p{5cm}|p{7cm}|}
+\hline
+Hyperparameter & Candidate Values\\
+\hline
+Hidden Layers & 1, 2, 3\\
+Hidden Neurons & 32, 64, 128, 256\\
+Learning Rate & 0.1, 0.01, 0.001\\
+Batch Size & 16, 32, 64, 128\\
+Epochs & 10, 20, 30\\
+Optimizer & SGD, Adam, RMSProp\\
+Activation Function & ReLU, Tanh, Sigmoid\\
+Dropout Rate (Optional) & 0.0, 0.2, 0.5\\
+\hline
+\end{tabular}
+\end{center}
+
+
+\begin{enumerate}
+\item Built a baseline MLP model (Section 6, Task 3).
+\item Defined the hyperparameter search space (table above).
+\item Performed Randomized Search with 5-fold cross-validation.
+\item Recorded the best hyperparameter combination (above).
+\item Retrained the model using the optimized hyperparameters.
+\item Evaluated the optimized model on the testing dataset.
+\item Compared the optimized model with the baseline model.
+\end{enumerate}
+
+\subsection*{Retraining with Optimized Hyperparameters}
+
+\textbf{Optimized Model Summary:}
+\begin{lstlisting}[style=output]
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ dense_290 (Dense)               │ (None, 256)            │       200,960 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_176 (Dropout)           │ (None, 256)            │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_291 (Dense)               │ (None, 10)             │         2,570 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+\end{lstlisting}
+
+\subsection*{Optimized Model -- Test Set Evaluation}
+\begin{lstlisting}[style=output]
+Optimized Model — Test Set Metrics
+----------------------------------------
+Accuracy : 0.8799
+Precision: 0.8819
+Recall   : 0.8799
+F1-score : 0.8775
+
+Classification Report
+----------------------------------------
+              precision    recall  f1-score   support
+
+ T-shirt/top       0.78      0.89      0.83      1000
+     Trouser       1.00      0.97      0.98      1000
+    Pullover       0.74      0.83      0.79      1000
+       Dress       0.83      0.92      0.87      1000
+        Coat       0.79      0.78      0.79      1000
+      Sandal       0.95      0.99      0.97      1000
+       Shirt       0.81      0.55      0.66      1000
+     Sneaker       0.95      0.95      0.95      1000
+         Bag       0.99      0.96      0.98      1000
+  Ankle boot       0.98      0.94      0.96      1000
+
+    accuracy                           0.88     10000
+   macro avg       0.88      0.88      0.88     10000
+weighted avg       0.88      0.88      0.88     10000
+\end{lstlisting}
+
+\begin{lstlisting}[style=output]
+Accuracy improvement from hyperparameter optimization: 
+Baseline Accuracy : 0.8790
+Optimized Accuracy: 0.8799
+\end{lstlisting}
+
+\section*{9. Mandatory Plots}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{sample_images.png}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{class_distribution.png}
+\end{figure}
+\textit{Inference:}The graph shows that the training and test set has a normal class distribution, showing that the classes are perfectly balanced.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{accuracy_vs_epoch.png}
+\end{figure}
+\textit{Inference:} The training accuracy steadily increases across epochs, showing that the model is learning. The validation accuracy hovers around 88\% showing that the model performs well in validation set, with slight overfitting.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{loss_vs_epoch.png}
+\end{figure}
+\textit{Inference:} The training loss decreases steadily across epoch while the validation loss slightly increases with increase in epoch, proving slight overfitting.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{confusion_matrix_baseline.png}
+\end{figure}
+\textit{Inference:} Most of the classes are classified correctly, showing that a MLP can be used for classification of the dataset, with a decent accuracy of 0.8.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{hyperparameter_search_results.png}
+\end{figure}
+\textit{Inference:}  Using randomizedSearchCV, a mean CV accuracy 88\% is achieved, showing that several top-ranked hyperparameter combinations achieve high performance, indicating model stability. Lower-ranked trials have reduced accuracy showing that hyperparameter selection impacts model accuracy.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{optimized_accuracy_vs_epoch.png}
+\end{figure}
+\textit{Inference:} The optimized MLP shows a steady increase in training accuracy, and validation accuracy hovering at 88\%, indicating the optimized MLP has good learning. There is no significant difference between baseline and optimized model.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{optimized_loss_vs_epoch.png}
+\end{figure}
+\textit{Inference:} The optimized MLP exhibits a steady decrease in training loss, while the validation loss initially decreases and then fluctuates around 0.34–0.40. The slight increase in validation loss during later epochs suggests mild overfitting.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{confusion_matrix_optimized.png}
+\end{figure}
+\textit{Inference:} The confusion matrix shows that the optimized MLP correctly classifies most samples. Most misclassifications arise for classes that are similar.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{best_model_accuracy_comparison.png}
+\end{figure}
+\textit{Inference:} Both the baseline model and optimized model has highly similar performance metrics, showing that MLP can achieve a maximum accuracy around 88\% despite maximum optimization. There is a limit for MLP in image classification thereby we have to use CNN for better accuracy.
+
+\section*{10. Results}
+
+\textbf{Best Hyperparameters}
+
+\begin{tabular}{|p{6cm}|p{6cm}|}
+\hline
+Hidden Layers & 1\\\hline
+Hidden Neurons & 256\\\hline
+Learning Rate & 0.001\\\hline
+Batch Size & 16\\\hline
+Optimizer & ADAM\\\hline
+Activation Function & RELU\\\hline
+Epochs & 20\\\hline
+Dropout & 0.2\\\hline
+Cross-validation Accuracy & 0.8801\\\hline
+Testing Accuracy & 0.8799\\\hline
+\end{tabular}
+
+\vspace{3mm}
+
+\textbf{Performance Comparison}
+
+\begin{tabular}{|p{4cm}|c|c|}
+\hline
+Metric & Baseline & Optimized\\
+\hline
+Accuracy&0.8790&0.8799\\
+Precision&0.8795&0.8818\\
+Recall&0.8790&0.8799\\
+F1-score&0.8776&0.8775\\
+Training Time&84.5 s (20 epochs)& 158.6(20 epochs)\\
+\hline
+\end{tabular}
+
+\section*{11. Discussion}
+
+\begin{enumerate}
+\item \textbf{Which optimization method was used?} \\
+RandomizedSearchCV with 5-fold cross-validation was used, sampling 20 random configurations from the 60k samples.\\
+
+\item \textbf{Which hyperparameters were selected?}\\
+1 hidden layer with 256 neurons, ReLU activation, ADAM optimizer with learning rate 0.001, dropout rate 0.2, batch size 16, trained for 20 epochs. This combination achieved the best mean cross-validation accuracy of 0.8799.\\
+
+\item \textbf{Did optimization improve performance?}\\
+No. The optimization did not create any improvement in the model performance. Both baseline and optimized had almost similar validation accuracy. This is because of the limitation of MLP on image dataset. A 28*28 dataset creates 784 input neurons, 784 hidden neurons and 784 bias. This huge size of the perceptron leads to slower learning, thereby affecting the accuracy. Though the model gave an accuracy of 88\%, there was no improvement upon optimization due to the structure of the MLP.\\
+
+\item \textbf{Which hyperparameter had the greatest impact?}\\
+ReLU activation function, with ADAM Optimizer with 1 hidden layer, 256 hidden neuron and lr of 0.001 had the greatest impact. It gave the highest accuracy with fastest convergence.\\ 
+
+\item \textbf{Compare Grid Search and Randomized Search.} \\
+Grid Search evaluates every combination in the search space, whereas randomsearch evaluates a fixed number of random samples. Grid search gives the highest accuracy but random search is used for larger search space.\\
+
+\item \textbf{Recommend the best MLP configuration.}\\
+Activation Function - ReLU\\
+Optimizer - ADAM\\
+Hidden layers - 1\\
+Hidden neuron - 256\\
+LR - 0.001\\
+Batch size - 16\\
+Dropout rate - 0.2\\
+\end{enumerate}
+
+\section*{12. Additional Task}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{xor-boundary.png}
+\end{figure}
+\textit{Inference:} The classification decision boundary improves with more epochs, showing that the model learns the non-linear function through backpropagations as the iterations increases. A MLP successfully classifies a XOR gate
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{xor-comp.png}
+\end{figure}
+\textit{Inference:} The figure shows that scikit learn MLP outperforms manual implementation of MLP, providing a clear decision boundary.
+
+
+\section*{13. Conclusion}
+The MNIST Dataset was trained and validated using a multi layer perceptron. The baseline model was built using 784 input neurons, ReLU \& Softmax activation function, without optimizers. It produced an accuracy of 0.8790. The model was further optimized using various hyperparameters, and the best combination produced an accuracy of 0.8799. Both baseline and optimized version produced almost similar accuracy, proving the limitations of MLP on image dataset, thereby leading to the use of CNN for image dataset.\\
+On the other hand, Multi Layer Perceptron was effective in achieving a perfect classification decision boundary for a XOR Gate, that has a non-linear function.\\
+Thus, MLP is useful for classification of non-linear functions effectively. It also classifies images, but has a maximum limit on accuracy, beyond which it cannot be optimized.\\
+
+\section*{14. References}
+\begin{enumerate}
+\item Goodfellow et al., \emph{Deep Learning}.
+\item Bishop, \emph{Pattern Recognition and Machine Learning}.
+\item Haykin, \emph{Neural Networks and Learning Machines}.
+\item Fashion-MNIST Dataset.
+\item TensorFlow/Keras Documentation.
+\end{enumerate}
+
+\end{document}
