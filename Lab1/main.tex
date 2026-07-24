@@ -1,0 +1,624 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,longtable}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usetikzlibrary{shapes, fit}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{rotating}
+\usepackage{tabularx}
+ \usepackage{xcolor,soul,framed} %,caption
+\colorlet{shadecolor}{yellow}
+% \usepackage{color,soul}
+\usepackage{graphicx,epstopdf}
+\usepackage{graphicx}
+\graphicspath{{../pdf/}{../jpeg/}}
+\DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+\DeclareGraphicsExtensions{.eps}
+\usepackage{epstopdf}
+\epstopdfDeclareGraphicsRule{.pdf}{png}{.png}{convert #1 \OutputFile}
+\usepackage[cmex10]{amsmath}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{mdwmath}
+\usepackage{lipsum}
+\usepackage{mdwtab}
+\usepackage{eqparbox}
+\usepackage{siunitx}
+\usepackage{textcomp, gensymb}
+\usepackage{amsfonts}
+\usepackage[noadjust]{cite}
+\usepackage[center]{caption}
+\usepackage{subcaption}
+\usepackage[font=small,skip=2pt]{caption}
+\captionsetup{skip=0pt}
+\usepackage{comment}
+\usepackage{tikz}
+\usetikzlibrary{shapes,fit,positioning}
+\usetikzlibrary{shapes,arrows}
+\usepackage{soul}
+\usepackage{xcolor}
+\usepackage{cite}
+\sethlcolor{yellow} 
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{footnote}
+\usepackage{url}
+\def\UrlBreaks{\do\/\do-}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\graphicspath{{../pdf/}{../jpeg/}}
+\DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+\DeclareGraphicsExtensions{.eps}
+\usepackage{epstopdf}
+\epstopdfDeclareGraphicsRule{.pdf}{png}{.png}{convert #1 \OutputFile}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{xcolor,soul,framed}
+\usepackage{enumitem}
+\usepackage{comment}
+\usepackage[font=small,skip=0.4pt]{caption}
+\captionsetup{skip=0pt}
+\captionsetup{justification=centering}
+\usepackage{subcaption}
+\usepackage[noadjust]{cite}
+\usepackage[T1]{fontenc} 
+\usepackage{amsmath}
+\interdisplaylinepenalty=2500
+\usepackage[cmintegrals]{newtxmath}
+\usepackage{bm}
+\usepackage{titlesec}
+\usepackage{float}
+\usepackage{placeins}
+
+\begin{document}
+
+\begin{center}
+\Large\textbf{Shiv Nadar University Chennai}\\[2mm]
+\end{center}
+
+\renewcommand{\arraystretch}{1.4}
+
+\begin{tabular}{|p{3.5cm}|p{8cm}|p{2cm}|}
+\hline
+Degree \& Branch & B.Tech Artificial Intelligence \& Data Science & Semester V\\ \hline
+Subject Code \& Name & CS3807 -- Deep Learning Laboratory & AY: 2026--27\\ \hline
+\end{tabular}
+
+\begin{tabular}{|p{3.5cm}|p{8cm}|}
+\hline
+\textbf{Name} & {ATHARSH S U}\\ \hline
+\textbf{Register Number} &{24011101008} \\ \hline
+\textbf{Roll Number} &{24110049} \\ \hline
+\textbf{Class} & {AI-DS 'A'}\\ \hline
+\end{tabular}
+\vspace{3mm}
+
+\begin{center}
+\Large\textbf{Experiment 1}\\
+\large\textbf{Implementation of a Single Layer Perceptron for Binary Classification}
+\end{center}
+
+%----------------------------------------------------------
+
+\section*{1. Objective}
+
+The objective of this experiment is to understand the concept of an artificial neuron and implement a Single Layer Perceptron from scratch for binary classification. Students will learn the perceptron learning algorithm, understand the importance of activation functions, visualize the learning process, and evaluate the classifier using a real-world dataset.
+
+%----------------------------------------------------------
+
+\section*{2. Background Theory}
+
+An Artificial Neuron is the fundamental building block of a neural network. It receives one or more input features, multiplies them by corresponding weights, adds a bias term, and applies an activation function to determine the output.
+
+The Single Layer Perceptron is the earliest supervised learning algorithm capable of solving linearly separable binary classification problems.
+
+\subsection*{Mathematical Formulation}
+
+Weighted Sum
+
+\[
+z=\mathbf{w}^{T}\mathbf{x}+b
+\]
+
+where
+
+\begin{itemize}
+\item $\mathbf{x}$ : Input vector
+\item $\mathbf{w}$ : Weight vector
+\item $b$ : Bias
+\item $z$ : Linear combination
+\end{itemize}
+
+Prediction
+
+\[
+\hat y=f(z)
+\]
+
+Weight Update Rule
+
+\[
+\mathbf{w}_{new}
+=
+\mathbf{w}_{old}
++
+\eta
+(y-\hat y)
+\mathbf{x}
+\]
+
+Bias Update
+
+\[
+b_{new}
+=
+b_{old}
++
+\eta
+(y-\hat y)
+\]
+
+where $\eta$ denotes the learning rate.
+
+%----------------------------------------------------------
+
+\section*{3. Activation Functions}
+
+An activation function determines the output of a neuron based on the weighted sum of its inputs. It introduces non-linearity, enabling neural networks to learn complex patterns. Although the perceptron uses only the Step Activation Function, modern deep learning models employ differentiable activation functions for efficient optimization through backpropagation.
+
+\subsection*{Step Activation Function}
+
+\[
+f(z)=
+\begin{cases}
+1,&z\ge0\\
+0,&z<0
+\end{cases}
+\]
+
+The Step Activation Function produces a binary output and is therefore suitable only for linearly separable binary classification problems.
+
+\begin{center}
+\begin{tabular}{|p{2.5cm}|p{3cm}|p{6cm}|}
+\hline
+\textbf{Activation} & \textbf{Output Range} & \textbf{Typical Applications}\\
+\hline
+Step & $\{0,1\}$ & Classical Perceptron\\
+\hline
+Sigmoid & $(0,1)$ & Binary Classification Output Layer\\
+\hline
+Tanh & $(-1,1)$ & Hidden Layers (Traditional Networks)\\
+\hline
+ReLU & $[0,\infty)$ & Hidden Layers in CNNs and MLPs\\
+\hline
+Leaky ReLU & $(-\infty,\infty)$ & Avoiding Dying ReLU\\
+\hline
+Softmax & $(0,1)$ & Multi-class Classification Output Layer\\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Note:} This experiment uses only the Step Activation Function. The remaining activation functions will be studied in subsequent experiments involving Multilayer Perceptrons and Deep Neural Networks.
+
+%----------------------------------------------------------
+
+\section*{4. Dataset Description}
+
+\textbf{Dataset:} Banknote Authentication Dataset
+
+\textbf{Source:} UCI Machine Learning Repository
+
+\textbf{Download Link:}
+
+\url{https://archive.ics.uci.edu/dataset/267/banknote+authentication}
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Instances & 1372\\
+\hline
+Features & 4 Numerical Features\\
+\hline
+Classes & 2\\
+\hline
+Missing Values & None\\
+\hline
+Task & Binary Classification\\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Feature Description}
+
+\begin{itemize}
+\item Variance
+\item Skewness
+\item Curtosis
+\item Entropy
+\end{itemize}
+
+Target Class
+
+\begin{itemize}
+\item 0 -- Authentic Banknote
+\item 1 -- Forged Banknote
+\end{itemize}
+
+%----------------------------------------------------------
+
+\section*{5. Experimental Procedure}
+
+\textbf{Task 1: Dataset Exploration}
+
+\begin{itemize}
+\item Load the dataset.
+\item Display the first five samples.
+\item Determine dataset dimensions.
+\item Identify missing values.
+\item Display descriptive statistics.
+\end{itemize}
+
+\vspace{2mm}
+
+\textbf{Task 2: Exploratory Data Analysis}
+
+Generate
+
+\begin{itemize}
+\item Histograms
+\item Correlation Heatmap
+\item Scatter Plot
+\item Boxplots
+\end{itemize}
+
+\vspace{2mm}
+
+\textbf{Task 3: Data Preprocessing}
+
+\begin{itemize}
+\item Normalize all numerical features.
+\item Split the dataset into Training (80\%) and Testing (20\%).
+\end{itemize}
+
+\vspace{2mm}
+
+\textbf{Task 4: Perceptron Implementation}
+
+Implement from scratch
+
+\begin{itemize}
+\item Weight Initialization
+\item Bias Initialization
+\item Step Activation Function
+\item Forward Propagation
+\item Perceptron Learning Rule
+\end{itemize}
+
+\vspace{2mm}
+
+\textbf{Task 5: Model Training}
+
+Display
+
+\begin{itemize}
+\item Epoch Number
+\item Misclassified Samples
+\item Updated Weights
+\item Updated Bias
+\end{itemize}
+
+\vspace{2mm}
+
+\textbf{Task 6: Model Evaluation}
+
+Compute
+
+\begin{itemize}
+\item Accuracy
+\item Precision
+\item Recall
+\item F1-score
+\item Confusion Matrix
+\end{itemize}
+
+%----------------------------------------------------------
+\section*{6. Source Code (GitHub Repo)}
+\textbf{Repository Link:}
+
+\url{https://github.com/Atharsh2910/Perceptron-Lab1}
+
+%----------------------------------------------------------
+%----------------------------------------------------------
+\section*{7. Experimental Results}
+
+\begin{itemize}
+\item Accuracy = 0.9891
+\item Precision = 0.9917
+\item Recall = 0.9836
+\item F1-score = 0.9877
+\item Confusion Matrix = $\begin{bmatrix}152 & 1\\ 2 & 120\end{bmatrix}$
+\end{itemize}
+%----------------------------------------------------------
+
+\section*{8. Generated Plots}
+
+\subsection*{8.1 Feature Histograms}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{histogram}
+\end{figure}
+
+\textbf{Inference:} The variance appears to be normally distributed whereas skewness, curtosis and entropy are skewed towards the sides. This shows that the datasets have the points that can be seperated as classes.  
+
+\FloatBarrier
+\clearpage
+\subsection*{8.2 Correlation Heatmap}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{correlation_heatmap}
+\end{figure}
+
+\textbf{Inference:} The correlation between the attributes are weaker and shows no strong correlation. Thus all attributes has to be used for training.
+
+\FloatBarrier
+\subsection*{8.3 Scatter Plot}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{scatterplot}
+\end{figure}
+
+\textbf{Inference:} The scatter plot for two features has data points that overlap each other. Thus for classification purpose, we have to use all the features for proper linear seperation.
+
+\FloatBarrier
+\clearpage
+\subsection*{8.4 Boxplots}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{boxplot}
+\end{figure}
+
+\textbf{Inference:} Entropy and Kurtosis has many outlier points that lie beyond the whisker, in the plot. This proves the skewness captured in the histogram.
+
+\FloatBarrier
+\subsection*{8.5 Training Error vs Epoch}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{training_error}
+\end{figure}
+
+\textbf{Inference:} The training error increases drastically beyond Three epochs. This suggests that the Perceptron has generalised the data points in early epochs. The convergence occurs at around 3 epochs.
+
+\FloatBarrier
+\clearpage
+\subsection*{8.6 Confusion Matrix}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{confusion_matrix}
+\end{figure}
+
+\textbf{Inference:} Out of 275 test samples, 152 original and 120 duplicate notes were correctly classified, with only 1 false positive and 2 false negatives. This suggests that single layer perceptron provides high accuracy classification for this dataset.
+
+\FloatBarrier
+\subsection*{8.7 Learning Rate Comparison}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{learning_rate_comparison}
+\end{figure}
+
+\textbf{Inference:} Learning rate of 0.1 provides the best convergence and maintains the same accuracy for all epochs. For learning rates 0.01 and 0.001, the accuracy drastically increases beyond the 10th epoch, where the convergence occurs.
+
+\FloatBarrier
+\clearpage
+\subsection*{8.8 Manual vs Scikit-learn Perceptron}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{manual_vs_sklearn_perceptron}
+\end{figure}
+
+\textbf{Inference:} Both Manual and Scikit-Learn version of perceptron provides almost equal classification accuracy, with manual perceptron slightly outperforming the scikit learn version.
+
+\FloatBarrier
+\subsection*{8.9 Decision Boundary (Skewness \& Kurtosis)}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{decision_boundary}
+\end{figure}
+
+\textbf{Inference:} With just two attributes, the decision boundary could not be defined well, with many points overlapping near the maximum margin separation line. This suggests that all four attributes are equally important for the classification.
+
+\FloatBarrier
+\clearpage
+\subsection*{8.10 XOR Decision Boundary}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{xor_decision_boundary}
+\end{figure}
+
+\textbf{Inference:} Single Layer Perceptron cannot work on XOR gate as it is proved that a single line of seperation could not be obtained. This shows the limitation of a SLP, to linear seperability.
+
+\FloatBarrier
+%----------------------------------------------------------
+
+\section*{9. Performance Tables}
+
+\subsection*{9.1 Training Summary}
+
+\begin{tabular}{|p{6cm}|p{7cm}|}
+\hline
+Dataset Size & 1372 items\\
+\hline
+Train/Test Split & 80:20 (1097 train / 275 test)\\
+\hline
+Learning Rates Studied & 0.1, 0.01, 0.001\\
+\hline
+Epochs & 50\\
+\hline
+Final Weights  & $[-0.1628,\ -0.1898,\ -0.1866,\ 0.0013]$\\
+\hline
+Final Bias  & $0.2300$\\
+\hline
+Accuracy & 0.9891\\
+\hline
+Precision & 0.9917\\
+\hline
+Recall & 0.9836\\
+\hline
+F1-score & 0.9877\\
+\hline
+\end{tabular}
+
+\vspace{3mm}
+
+\subsection*{9.2 Epoch-wise Learning ($\eta = 0.01$)}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Epoch & Errors & Weight 1 & Weight 2 & Weight 3 & Weight 4 & Bias\\
+\hline
+1  & 171 & -0.0679 & -0.0462 & -0.0590 &  0.0221 & 0.07\\
+5  & 57  & -0.0988 & -0.0983 & -0.0984 &  0.0111 & 0.13\\
+10 & 43  & -0.1114 & -0.1198 & -0.1274 &  0.0099 & 0.16\\
+15 & 24  & -0.1169 & -0.1380 & -0.1421 &  0.0009 & 0.17\\
+20 & 27  & -0.1286 & -0.1474 & -0.1441 & -0.0067 & 0.19\\
+25 & 31  & -0.1319 & -0.1506 & -0.1608 &  0.0039 & 0.20\\
+30 & 22  & -0.1370 & -0.1639 & -0.1710 & -0.0018 & 0.20\\
+35 & 20  & -0.1450 & -0.1739 & -0.1713 & -0.0013 & 0.21\\
+40 & 20  & -0.1545 & -0.1740 & -0.1750 & -0.0051 & 0.22\\
+45 & 24  & -0.1617 & -0.1763 & -0.1817 & -0.0022 & 0.23\\
+50 & 20  & -0.1628 & -0.1898 & -0.1866 &  0.0013 & 0.23\\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection*{9.3 Confusion Matrix}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+ & \textbf{Predicted $-1$} & \textbf{Predicted $+1$}\\
+\hline
+\textbf{Actual $-1$} & 152 (TN) & 1 (FP)\\
+\hline
+\textbf{Actual $+1$} & 2 (FN) & 120 (TP)\\
+\hline
+\end{tabular}
+\end{center}
+
+%----------------------------------------------------------
+
+\section*{10. Additional Tasks}
+
+\begin{enumerate}[leftmargin=*]
+\item Compare the Step and Sigmoid activation functions. Discuss why the Step Activation Function is not used in modern deep learning models.\\
+ 1. Step Activation Function provides binary output, making it suitable for simple problems, while the Sigmoid Activation Function produces values between 0 and 1, allowing the model to learn from the data over iterations.\\
+ 2. Step Activation Function is not used in modern deep learning because it cannot be differentiated therefore limiting the backpropagation. 
+
+\item Compare the implementation with Scikit-learn's Perceptron.
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score}\\
+\hline
+Manual Perceptron & 0.9891 & 0.9917 & 0.9836 & 0.9877\\
+\hline
+Scikit-learn Perceptron & 0.9709 & 0.9385 & 1.0000 & 0.9683\\
+\hline
+\end{tabular}
+\end{center}
+
+
+\item Repeat the experiment using learning rates 0.001, 0.01 and 0.1.
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Learning Rate} & \textbf{Epochs Run} & \textbf{Final Misclassified} & \textbf{Final Bias}\\
+\hline
+0.1   & 40 & 20 & 2.2000\\
+0.01  & 50 & 20 & 0.2300\\
+0.001 & 20 & 27 & 0.0190\\
+\hline
+\end{tabular}
+\end{center}
+
+\item Explain why a Single Layer Perceptron cannot solve the XOR problem.
+ A single layer perceptron can handle only linear separation cases. The perceptron cannot derive a straight line that separates the XOR classes, the decision boundary misclassifies at least one of the points, marking it as a limitation of SLP.
+
+\item Study the effect of feature normalization on model convergence.\\
+    1. Feature normalization improves convergence by normalizing all data points to a similar range, allowing the model to update weights more efficiently and converge faster.\\
+    2. Without normalization, larger values can drag the convergence to one direction, thereby slowing down convergence.
+\end{enumerate}
+
+%----------------------------------------------------------
+\section*{11. Additional tasks(week 3)}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{or-gate.png}
+\end{figure}
+\textbf{Inference:} A single layer perceptron classifies an OR Gate perfectly, with accuracy increasing over epochs.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{and-gate.png}
+\end{figure}
+\textbf{Inference:} A single layer perceptron classifies an AND Gate perfectly, with accuracy increasing over epochs.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{not-gate.png}
+\end{figure}
+\textbf{Inference:} A single layer perceptron classifies an NOT Gate perfectly, with accuracy increasing over epochs.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{or-comp.png}
+\end{figure}
+\textbf{Inference:} Both Sklearn implentation and Manual implementation of SLP classifies an OR gate, with the built in method acheiving an higher accuracy with more precise decision boundary.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{and-comp.png}
+\end{figure}
+\textbf{Inference:} Both Sklearn implentation and Manual implementation of SLP classifies an AND gate perfectly with almost similar accuracy.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{not-comp.png}
+\end{figure}
+\textbf{Inference:} Both Sklearn implentation and Manual implementation of SLP classifies an NOT gate, with the built in method acheiving an higher accuracy with more precise decision boundary.
+
+\section*{12. Conclusion}
+\begin{itemize}[leftmargin=*]
+\item The model achieved \textbf{98.91\% accuracy}, \textbf{99.17\% precision}, \textbf{98.36\% recall}, and an \textbf{F1-score of 98.77\%} on the test set, correctly classifying 272 of 275 test samples.\\
+\item Both the models, manual and scikit learn perceptron,  achieved almost similar accuracy (98.91\% vs. 97.09\% accuracy).\\
+\item This shows that Single Layer Perceptron can be used for binary classifications efficiently.\\
+\item The additional tasks of classifying logic gates using single layer perceptron shows that a SLP can effectively classify OR, AND and NOT gates that have a linear function, but fails in classifying XOR gate that has a non-linear function. This proves that SLP is limited to linear decision boundary, y=mx+c.\\
+\end{itemize}
+
+\section*{13. References}
+\begin{enumerate}
+\item F. Rosenblatt, ``The Perceptron,'' \emph{Psychological Review}, 1958.
+\item I. Goodfellow, Y. Bengio and A. Courville, \emph{Deep Learning}, MIT Press, 2016.
+\item C. M. Bishop, \emph{Pattern Recognition and Machine Learning}, Springer, 2006.
+\item S. Haykin, \emph{Neural Networks and Learning Machines}, Pearson, 2009.
+\item UCI Machine Learning Repository -- Banknote Authentication Dataset.
+\item Scikit-learn Documentation: Perceptron.
+\end{enumerate}
+
+\end{document}
