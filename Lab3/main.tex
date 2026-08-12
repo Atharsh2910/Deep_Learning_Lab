@@ -1,0 +1,511 @@
+
+\documentclass[11pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,longtable}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\setlist{nosep}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{gray!10},
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  language=Python
+}
+
+\begin{document}
+
+\begin{center}
+{\Large\textbf{Shiv Nadar University Chennai}}\\
+\textbf{CS3807 -- Deep Learning Laboratory}\\
+\textbf{Experiment 3}\\
+{\large\textbf{Implementation of Convolutional Neural Networks (CNNs) for Image Classification
+}}
+
+\textbf{Repository Link:}
+\textbf{\url{https://github.com/Atharsh2910/Deep_Learning_Lab}
+}
+
+\end{center}
+
+\renewcommand{\arraystretch}{1.25}
+
+\begin{tabular}{|p{3.8cm}|p{8cm}|p{2cm}|}
+\hline
+Degree \& Branch & B.Tech Artificial Intelligence \& Data Science & Semester V\\ \hline
+Subject Code \& Name & CS3807 -- Deep Learning Laboratory & AY: 2026--27\\ \hline
+\end{tabular}
+
+\begin{tabular}{|p{3.5cm}|p{8cm}|}
+\hline
+\textbf{Name} & {ATHARSH S U}\\ \hline
+\textbf{Register Number} &{24011101008} \\ \hline
+\textbf{Roll Number} &{24110049} \\ \hline
+\textbf{Class} & {AI-DS 'A'}\\ \hline
+\end{tabular}
+\vspace{3mm}
+
+% Begin Section 1
+\section{Objective}
+To design, implement, and systematically optimize a Convolutional Neural Network (CNN) for multi-class image classification on the CIFAR-10 dataset. The experiment explores hyperparameter tuning strategies, regularization techniques (Batch Normalization, Dropout, L2), data augmentation, and adaptive learning rate scheduling to achieve improved generalization beyond a baseline CNN.
+
+% Begin Section 2
+\section{Learning Outcomes}
+Students will be able to:
+\begin{enumerate}
+    \item Implement data augmentation using \texttt{ImageDataGenerator} to reduce overfitting.
+    \item Apply Batch Normalization and Dropout as regularization strategies.
+    \item Design a deeper CNN with progressive filter expansion (32 $\rightarrow$ 64 $\rightarrow$ 128).
+    \item Use GlobalAveragePooling2D as a parameter-efficient alternative to Flatten.
+    \item Employ adaptive callbacks (EarlyStopping, ReduceLROnPlateau, ModelCheckpoint).
+    \item Compare ReLU vs Sigmoid activations quantitatively.
+    \item Evaluate models using Accuracy, Precision, Recall, F1-score, and Confusion Matrix.
+    \item Interpret and compare baseline vs optimized model performance.
+\end{enumerate}
+
+% Begin Section 3
+\section{Background Theory}
+
+\subsection{Convolutional Neural Network (CNN)}
+A CNN consists of stacked convolution, activation, pooling, and fully connected layers. The convolution operation is:
+\begin{equation}
+    Y(i,j) = \sum_{m}\sum_{n}X(i+m,j+n)\,K(m,n)
+\end{equation}
+where $X$ is the input, $K$ is the kernel, and $Y$ is the feature map. The output spatial size is:
+\begin{equation}
+    \text{Output Size} = \frac{N - F + 2P}{S} + 1
+\end{equation}
+where $N$ = input size, $F$ = filter size, $P$ = padding, $S$ = stride.
+
+\subsection{Batch Normalization}
+Batch Normalization (BN) normalizes the activations of a layer across a mini-batch:
+\begin{equation}
+    \hat{x}_i = \frac{x_i - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}}, \quad y_i = \gamma \hat{x}_i + \beta
+\end{equation}
+It reduces internal covariate shift, speeds up convergence, and acts as a mild regularizer.
+
+\subsection{Dropout}
+Dropout randomly sets a fraction $p$ of activations to zero during training, preventing co-adaptation of neurons and reducing overfitting.
+
+\subsection{L2 Regularization}
+L2 (weight decay) adds a penalty $\lambda \sum w_i^2$ to the loss function, constraining the magnitude of weights.
+
+\subsection{Data Augmentation}
+Augmentation artificially expands the training set by applying random transformations (rotation, flip, shift, zoom), helping the model generalize better.
+
+\subsection{GlobalAveragePooling2D}
+GlobalAveragePooling2D (GAP) computes the spatial mean of each feature map, producing a compact vector. It drastically reduces the number of parameters compared to a Flatten + Dense block.
+
+\subsection{Adaptive Learning Rate Scheduling}
+\textbf{ReduceLROnPlateau} monitors a metric (e.g., validation loss) and reduces the learning rate by a factor when improvement stalls, allowing finer optimization. \textbf{EarlyStopping} halts training when validation performance ceases to improve, restoring the best weights.
+
+\subsection{Activation Function Comparison: ReLU vs Sigmoid}
+\begin{itemize}
+    \item \textbf{ReLU}: $f(x) = \max(0, x)$ -- computationally efficient, avoids vanishing gradient for positive activations.
+    \item \textbf{Sigmoid}: $f(x) = \frac{1}{1+e^{-x}}$ -- saturates at extremes, prone to vanishing gradients in deep networks.
+\end{itemize}
+
+% Begin Section 4
+\section{Dataset: CIFAR-10}
+\begin{itemize}
+    \item \textbf{Training Images:} 50,000 ($32\times32\times3$ RGB)
+    \item \textbf{Testing Images:} 10,000 ($32\times32\times3$ RGB)
+    \item \textbf{Classes:} 10 (airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck)
+    \item \textbf{Preprocessing:} Pixel values normalized to $[0, 1]$ by dividing by 255. Labels one-hot encoded.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{dl-lab3_img0.png}
+    \caption{Sample images from the CIFAR-10 dataset showing all 10 classes at $32\times32$ resolution. The dataset exhibits significant intra-class variation and inter-class visual similarity (e.g., cat vs dog), making it a challenging benchmark.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\textwidth]{dl-lab3_img1.png}
+    \caption{Class distribution across the CIFAR-10 training set. Each class contains exactly 5,000 images, confirming a perfectly balanced dataset. No re-sampling or class weighting is required.}
+\end{figure}
+
+% Begin Section 5
+\section{Analytical Exercises}
+
+\subsection{Output Size Calculation}
+For a $64\times64$ input image with a $5\times5$ kernel, stride $S=2$, and padding $P=2$:
+\begin{equation}
+    \text{Output Size} = \frac{64 - 5 + 2 \times 2}{2} + 1 = \frac{63}{2} + 1 = 32 \times 32
+\end{equation}
+
+\subsection{Trainable Parameter Count}
+For a Conv2D layer with 64 filters of size $3\times3$ applied to an RGB (3-channel) input:
+\begin{equation}
+    \text{Parameters} = (3 \times 3 \times 3 + 1) \times 64 = 28 \times 64 = 1{,}792
+\end{equation}
+
+% Begin Section 6
+\section{Activation Function Comparison: ReLU vs Sigmoid}
+Both ReLU and Sigmoid activations were evaluated on a simple 2-Conv CNN trained for 5 epochs on CIFAR-10:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Activation} & \textbf{Test Accuracy} & \textbf{Training Time} \\ \hline
+        ReLU & 57.05\% & 9.1 s \\ \hline
+        Sigmoid & 33.29\% & 7.6 s \\ \hline
+    \end{tabular}
+    \caption{ReLU vs Sigmoid -- 5-epoch comparison on CIFAR-10. ReLU achieves significantly higher accuracy due to its linear gradient flow for positive activations, avoiding saturation.}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.80\textwidth]{dl-lab3-opt_img0.png}
+    \caption{Validation accuracy over 5 epochs for ReLU (blue) and Sigmoid (orange) activations. ReLU converges faster and achieves higher accuracy. Sigmoid suffers from vanishing gradients, especially in early epochs (near-random 8.6\% in epoch 1--2).}
+\end{figure}
+
+% Begin Section 7
+\section{Feature Map Visualization}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.90\textwidth]{dl-lab3_img2.png}
+    \caption{Feature maps extracted from the first convolutional layer of the baseline CNN for a sample frog image. Feature Map 1 highlights edge contours; Feature Map 3 captures circular blob-like regions (head); Feature Map 8 detects large smooth gradient regions. Darker maps indicate low activation for that filter's specific pattern.}
+\end{figure}
+
+% Begin Section 8
+\section{Optimized CNN Architecture}
+
+\subsection{Architecture Design}
+The optimized model replaces the flat baseline architecture with a \textbf{three-block convolutional structure} using progressively increasing filter counts (32 $\rightarrow$ 64 $\rightarrow$ 128), Batch Normalization, Dropout, and GlobalAveragePooling2D:
+
+\begin{lstlisting}[caption={Optimized CNN architecture (conv\_block function + head)}]
+def conv_block(x, filters, l2_reg=1e-4):
+    x = layers.Conv2D(filters, (3,3), padding='same',
+                      kernel_regularizer=regularizers.l2(l2_reg))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.Conv2D(filters, (3,3), padding='same',
+                      kernel_regularizer=regularizers.l2(l2_reg))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Dropout(0.25)(x)
+    return x
+
+inputs = layers.Input(shape=(32, 32, 3))
+x = conv_block(inputs, 32)
+x = conv_block(x, 64)
+x = conv_block(x, 128)
+x = layers.GlobalAveragePooling2D()(x)
+x = layers.Dense(256, activation='relu',
+                  kernel_regularizer=regularizers.l2(1e-4))(x)
+x = layers.BatchNormalization()(x)
+x = layers.Dropout(0.5)(x)
+outputs = layers.Dense(10, activation='softmax')(x)
+tuned_model = models.Model(inputs, outputs, name='tuned_cifar10_cnn')
+\end{lstlisting}
+
+\subsection{Model Summary}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|r|}
+        \hline
+        \textbf{Layer} & \textbf{Output Shape} & \textbf{Params} \\ \hline
+        Input & (None, 32, 32, 3) & 0 \\ \hline
+        Conv2D (32 filters) & (None, 32, 32, 32) & 896 \\ \hline
+        BatchNormalization & (None, 32, 32, 32) & 128 \\ \hline
+        Activation (ReLU) & (None, 32, 32, 32) & 0 \\ \hline
+        Conv2D (32 filters) & (None, 32, 32, 32) & 9,248 \\ \hline
+        BatchNormalization & (None, 32, 32, 32) & 128 \\ \hline
+        Activation (ReLU) & (None, 32, 32, 32) & 0 \\ \hline
+        MaxPooling2D & (None, 16, 16, 32) & 0 \\ \hline
+        Dropout (0.25) & (None, 16, 16, 32) & 0 \\ \hline
+        Conv2D (64 filters) & (None, 16, 16, 64) & 18,496 \\ \hline
+        BatchNormalization & (None, 16, 16, 64) & 256 \\ \hline
+        Activation (ReLU) & (None, 16, 16, 64) & 0 \\ \hline
+        Conv2D (64 filters) & (None, 16, 16, 64) & 36,928 \\ \hline
+        BatchNormalization & (None, 16, 16, 64) & 256 \\ \hline
+        Activation (ReLU) & (None, 16, 16, 64) & 0 \\ \hline
+        MaxPooling2D & (None, 8, 8, 64) & 0 \\ \hline
+        Dropout (0.25) & (None, 8, 8, 64) & 0 \\ \hline
+        Conv2D (128 filters) & (None, 8, 8, 128) & 73,856 \\ \hline
+        BatchNormalization & (None, 8, 8, 128) & 512 \\ \hline
+        Activation (ReLU) & (None, 8, 8, 128) & 0 \\ \hline
+        Conv2D (128 filters) & (None, 8, 8, 128) & 147,584 \\ \hline
+        BatchNormalization & (None, 8, 8, 128) & 512 \\ \hline
+        Activation (ReLU) & (None, 8, 8, 128) & 0 \\ \hline
+        MaxPooling2D & (None, 4, 4, 128) & 0 \\ \hline
+        Dropout (0.25) & (None, 4, 4, 128) & 0 \\ \hline
+        GlobalAveragePooling2D & (None, 128) & 0 \\ \hline
+        Dense (256 units) & (None, 256) & 33,024 \\ \hline
+        BatchNormalization & (None, 256) & 1,024 \\ \hline
+        Dropout (0.50) & (None, 256) & 0 \\ \hline
+        Dense (10 units, Softmax) & (None, 10) & 2,570 \\ \hline
+        \hline
+    \end{tabular}
+\end{table}
+
+% Begin Section 9
+\section{Training Configuration and Callbacks}
+
+\subsection{Data Augmentation}
+\begin{lstlisting}[caption={ImageDataGenerator configuration for on-the-fly data augmentation}]
+datagen = ImageDataGenerator(
+    rotation_range=15,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    zoom_range=0.1,
+    horizontal_flip=True,
+    fill_mode='nearest'
+)
+datagen.fit(x_train_norm)
+\end{lstlisting}
+
+\subsection{Callbacks}
+\begin{lstlisting}[caption={Training callbacks for adaptive optimization and checkpointing}]
+callbacks_list = [
+    callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
+                                 patience=4, min_lr=1e-6, verbose=1),
+    callbacks.EarlyStopping(monitor='val_loss', patience=10,
+                             restore_best_weights=True, verbose=1),
+    callbacks.ModelCheckpoint('best_cifar10_model.keras',
+                               monitor='val_accuracy',
+                               save_best_only=True, verbose=1)
+]
+\end{lstlisting}
+
+\subsection{Training Parameters}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Parameter} & \textbf{Value} \\ \hline
+        Optimizer & Adam \\ \hline
+        Initial Learning Rate & 0.001 \\ \hline
+        Batch Size & 64 \\ \hline
+        Max Epochs & 60 (with EarlyStopping) \\ \hline
+        LR Reduce Factor & 0.5 \\ \hline
+        LR Patience & 4 epochs \\ \hline
+        Early Stop Patience & 10 epochs \\ \hline
+        Loss Function & Categorical Cross-Entropy \\ \hline
+    \end{tabular}
+    \caption{Hyperparameters used for training the optimized CNN.}
+\end{table}
+
+% Begin Section 10
+\section{Training Results and Curves}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{dl-lab3-opt_img1.png}
+    \caption{Training vs Validation Accuracy (left) and Loss (right) for the optimized CNN over $\sim$49 epochs. The model steadily improves, reaching $\sim$83\% validation accuracy. The red dashed line marks the 90\% target. The loss curves converge without severe overfitting -- a result of BN + Dropout + L2 regularization combined with data augmentation. The LR was halved at epoch 6 when validation loss stalled.}
+\end{figure}
+
+% Begin Section 11
+\section{Evaluation Metrics}
+
+\subsection{Optimized CNN -- Test Set Performance}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Metric} & \textbf{Value} \\ \hline
+        Accuracy & 0.8334 (83.34\%) \\ \hline
+        Precision (macro) & 0.8385 \\ \hline
+        Recall (macro) & 0.8334 \\ \hline
+        F1-score (macro) & 0.8307 \\ \hline
+    \end{tabular}
+    \caption{Test-set evaluation metrics for the optimized CNN on CIFAR-10.}
+\end{table}
+
+\subsection{Per-Class Classification Report (Optimized CNN)}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        \textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\ \hline
+        Airplane & 0.83 & 0.86 & 0.85 & 1000 \\ \hline
+        Automobile & 0.87 & 0.97 & 0.92 & 1000 \\ \hline
+        Bird & 0.88 & 0.67 & 0.76 & 1000 \\ \hline
+        Cat & 0.79 & 0.63 & 0.70 & 1000 \\ \hline
+        Deer & 0.87 & 0.76 & 0.81 & 1000 \\ \hline
+        Dog & 0.79 & 0.77 & 0.78 & 1000 \\ \hline
+        Frog & 0.70 & 0.96 & 0.81 & 1000 \\ \hline
+        Horse & 0.90 & 0.87 & 0.88 & 1000 \\ \hline
+        Ship & 0.90 & 0.91 & 0.91 & 1000 \\ \hline
+        Truck & 0.86 & 0.93 & 0.90 & 1000 \\ \hline
+        \hline
+        \textbf{Macro Avg} & \textbf{0.84} & \textbf{0.83} & \textbf{0.83} & 10000 \\ \hline
+    \end{tabular}
+    \caption{Per-class precision, recall, and F1-score for the optimized CNN. Automobile achieves the highest F1 (0.92) while Cat remains the hardest class (F1: 0.70) due to visual similarity with Dog.}
+\end{table}
+
+\subsection{Confusion Matrix -- Optimized CNN}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{dl-lab3-opt_img2.png}
+    \caption{Confusion matrix for the optimized CNN on the CIFAR-10 test set. The diagonal dominance confirms strong per-class performance. Notable confusions: Bird$\leftrightarrow$Frog (114 misclassifications), Cat$\leftrightarrow$Dog (116+114), and Deer$\leftrightarrow$Frog (107). Automobile achieves near-perfect recall (969/1000).}
+\end{figure}
+
+% Begin Section 12
+\section{Comparison: Baseline CNN vs Optimized CNN}
+
+The baseline CNN (\texttt{dl-lab3.ipynb}) is a simple 2-block model without regularization or augmentation, trained for 20 epochs with batch size 32. The optimized CNN (\texttt{dl-lab3-opt.ipynb}) applies BatchNorm, Dropout, L2, data augmentation, and adaptive LR scheduling.
+
+\subsection{Hyperparameter and Architecture Comparison}
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.35}
+    \begin{tabular}{|p{4.5cm}|p{4.5cm}|p{4.5cm}|}
+        \hline
+        \textbf{Aspect} & \textbf{Baseline CNN} & \textbf{Optimized CNN} \\ \hline
+        \textbf{Architecture} &
+        Conv(32)$\to$Pool $\to$ Conv(64) $\to$ Pool $\to$ Flatten $\to$ Dense(128) $\to$ Softmax &
+        3$\times$[Conv(F)$\to$BN$\to$ReLU$\to$Conv(F)$\to$BN$\to$ReLU$\to$Pool$\to$Drop] $\to$ GAP $\to$ Dense(256)$\to$BN$\to$Drop $\to$ Softmax \\ \hline
+        \textbf{Conv Filters} & 32, 64 & 32, 32, 64, 64, 128, 128 \\ \hline
+        \textbf{Batch Normalization} & None & After every Conv and Dense \\ \hline
+        \textbf{Dropout} & None & 0.25 (conv), 0.50 (dense) \\ \hline
+        \textbf{L2 Regularization} & None & $\lambda = 10^{-4}$ \\ \hline
+        \textbf{Data Augmentation} & None & Rotation, flip, shift, zoom \\ \hline
+        \textbf{Optimizer} & Adam (default lr) & Adam (lr = $10^{-3}$) \\ \hline
+        \textbf{Batch Size} & 32 & 64 \\ \hline
+        \textbf{Epochs} & 20 (fixed) & Up to 60 with EarlyStopping \\ \hline
+        \textbf{LR Scheduling} & None & ReduceLROnPlateau (factor 0.5, patience 4) \\ \hline
+        \textbf{Early Stopping} & None & patience = 10, restore best weights \\ \hline
+        \textbf{Pooling Type} & MaxPooling2D & MaxPooling2D \\ \hline
+        \textbf{Flatten Strategy} & Flatten $\to$ Dense(128) & GlobalAveragePooling2D $\to$ Dense(256) \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Performance Metric Comparison}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.35}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Metric} & \textbf{Baseline CNN} & \textbf{Optimized CNN} & \textbf{Improvement} \\ \hline
+        Test Accuracy & 68.43\% & \textbf{83.34\%} & +14.91\% \\ \hline
+        Precision (macro) & 68.64\% & \textbf{83.85\%} & +15.21\% \\ \hline
+        Recall (macro) & 68.43\% & \textbf{83.34\%} & +14.91\% \\ \hline
+        F1-score (macro) & 68.44\% & \textbf{83.07\%} & +14.63\% \\ \hline
+        Best Airplane F1 & 0.73 & \textbf{0.85} & +0.12 \\ \hline
+        Best Cat F1 & 0.48 & \textbf{0.70} & +0.22 \\ \hline
+        Best Automobile F1 & 0.79 & \textbf{0.92} & +0.13 \\ \hline
+        Overfitting & High & Mild & Significant reduction \\ \hline
+        Epochs to converge & 20 (fixed, overfits) & $\sim$49 (early stopped at best) & Adaptive \\ \hline
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Training Curve Comparison}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{dl-lab3_img3.png}
+        \caption{Baseline CNN: Training accuracy (blue) climbs to $\sim$97\% while validation accuracy plateaus at $\sim$68\%. This severe gap indicates overfitting without regularization.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{dl-lab3-opt_img1.png}
+        \caption{Optimized CNN: Training and validation curves stay much closer together ($\sim$83\% val), demonstrating effective regularization via BN + Dropout + L2 + Augmentation.}
+    \end{subfigure}
+    \caption{Training vs Validation accuracy and loss for the Baseline CNN (left) vs Optimized CNN (right). The baseline exhibits classic overfitting: training loss $\to$ 0 while validation loss \textit{increases}. The optimized model's regularization strategies keep the gap narrow.}
+\end{figure}
+
+\subsection{Confusion Matrix Comparison}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{dl-lab3_img4.png}
+        \caption{Baseline CNN confusion matrix. Cat (450/1000), Dog (622/1000), Automobile (757/1000) show significant misclassifications.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{dl-lab3-opt_img2.png}
+        \caption{Optimized CNN confusion matrix. Automobile (969/1000), Frog (960/1000), Truck (934/1000) are classified with high accuracy. Cat (629/1000) remains the hardest class.}
+    \end{subfigure}
+    \caption{Side-by-side confusion matrices. The diagonal values in the optimized model are consistently higher, confirming improved per-class recall across all 10 categories.}
+\end{figure}
+
+% Begin Section 13
+\section{Results Summary}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Metric} & \textbf{Baseline CNN} & \textbf{Optimized CNN} \\ \hline
+        Training Accuracy (final) & $\sim$97\% & $\sim$83\% (train $\approx$ val) \\ \hline
+        Testing Accuracy & 68.43\% & \textbf{83.34\%} \\ \hline
+        Precision & 68.64\% & \textbf{83.85\%} \\ \hline
+        Recall & 68.43\% & \textbf{83.34\%} \\ \hline
+        F1-score & 68.44\% & \textbf{83.07\%} \\ \hline
+    \end{tabular}
+    \caption{Final results summary for both models on the CIFAR-10 test set.}
+\end{table}
+
+% Begin Section 14
+\section{Discussion}
+\begin{enumerate}
+    \item \textbf{Why does the optimized model generalize better?}\\
+    The combination of Batch Normalization (stable training), Dropout (prevents co-adaptation), L2 regularization (weight decay), and data augmentation (effective dataset expansion) collectively reduce overfitting. The baseline model memorizes training data; the optimized model learns generalizable features.
+
+    \item \textbf{Role of GlobalAveragePooling2D:}\\
+    GAP replaces a large \texttt{Flatten + Dense} block (which in the 128-filter case would produce $4\times4\times128 = 2048$ features connected to 256 neurons, adding $2048\times256 = 524,288$ parameters). GAP reduces this to $128\times256 = 32,768$ parameters, controlling model complexity while preserving spatial feature information.
+
+    \item \textbf{Why ReLU outperforms Sigmoid?}\\
+    Sigmoid saturates when activations are large, producing near-zero gradients (vanishing gradient problem). ReLU's linear gradient for $x>0$ allows efficient gradient propagation through deep networks. In 5 epochs, ReLU reached 57.05\% vs Sigmoid's 33.29\%.
+
+    \item \textbf{Effect of ReduceLROnPlateau:}\\
+    The LR was halved (0.001 $\rightarrow$ 0.0005) at epoch 6 when validation loss stalled. This allowed the optimizer to take finer steps, leading to a jump from 54.43\% to 66.37\% validation accuracy at epoch 7, and further gains to 83\%+.
+
+    \item \textbf{Why Cat and Dog remain difficult?}\\
+    Cat and Dog share similar textures, fur patterns, and poses. The model confuses Cat$\leftrightarrow$Dog (116+114 errors) and Cat$\leftrightarrow$Frog (114 errors). Techniques like attention mechanisms or data-class specific augmentation could reduce this confusion further.
+
+    \item \textbf{Significance of Early Stopping:}\\
+    EarlyStopping (patience=10) halted training once validation loss failed to improve for 10 consecutive epochs, restoring the best-weight checkpoint. This prevents wasted computation and avoids divergence in later epochs.
+\end{enumerate}
+
+% Begin Section 15
+\section{Additional Exercises}
+
+\begin{enumerate}
+    \item \textbf{Output size for $64\times64$ image, $5\times5$ kernel, stride 2, padding 2:}
+    $$\frac{64 - 5 + 2 \times 2}{2} + 1 = \frac{63}{2} + 1 = 32 \times 32$$
+    Keras-verified output shape: $(1, 32, 32, 8)$.
+
+    \item \textbf{Trainable parameters for 64 filters of size $3\times3$, RGB input:}
+    $$(3 \times 3 \times 3 + 1) \times 64 = 1{,}792 \text{ parameters}$$
+
+    \item \textbf{ReLU vs Sigmoid -- comparison:}\\
+    See Section 6 and Figure 3. ReLU achieves 57.05\% vs Sigmoid's 33.29\% in 5 epochs on CIFAR-10 due to better gradient flow.
+
+    \item \textbf{Max Pooling vs Average Pooling}:\\ Both pooling types were compared using a 2-Conv baseline model for 3 epochs. Max Pooling consistently outperforms Average Pooling in validation accuracy on CIFAR-10 because max-pooled features preserve the most prominent activations (dominant edges, textures) rather than averaging them out.
+
+    \item \textbf{Effect of increasing filters from 16 to 64:}\\
+    Increasing filters allows the network to learn a richer set of features. However, it also increases the parameter count and computation. The optimized model uses 32$\to$64$\to$128 filters with GAP to balance expressiveness and overfitting risk via progressive regularization.
+\end{enumerate}
+
+% Begin Section 16
+\section{References}
+\begin{enumerate}
+    \item Goodfellow, I., Bengio, Y., \& Courville, A. (2016). \textit{Deep Learning}. MIT Press.
+    \item Ioffe, S., \& Szegedy, C. (2015). Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift. \textit{ICML}.
+    \item Srivastava, N., et al. (2014). Dropout: A Simple Way to Prevent Neural Networks from Overfitting. \textit{JMLR}.
+    \item He, K., et al. (2016). Deep Residual Learning for Image Recognition. \textit{CVPR}.
+    \item Krizhevsky, A. (2009). \textit{Learning Multiple Layers of Features from Tiny Images}. Technical Report, University of Toronto.
+    \item TensorFlow/Keras Documentation: \url{https://www.tensorflow.org/api_docs/python/tf/keras}
+    \item CIFAR-10 Dataset: \url{https://www.cs.toronto.edu/~kriz/cifar.html}
+\end{enumerate}
+
+\end{document}
