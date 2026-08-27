@@ -824,9 +824,7 @@ SGD (lr = 0.01, momentum = 0.9) & 80.79 & 0.8079 & 88.1\\
 \end{figure}
 
 \textit{Inference:} Adam converged faster and reached a lower validation
-loss and higher validation accuracy than SGD within the same 5 epochs.
-SGD was still improving at the end of training, indicating that it would
-likely need more epochs to match Adam's performance on this task.
+loss and higher validation accuracy than SGD within the same epochs.
 
 \subsection*{16.2 Hyperparameter Search Results (VGG16, 4 epochs each)}
 
@@ -883,19 +881,17 @@ Students should write a brief inference (2--3 lines) for each figure.
 \includegraphics[width=0.95\textwidth]{figs/fig_lenet5_curves.png}
 \end{figure}
 
-\textit{Inference:} LeNet-5's training and validation accuracy rise
-slowly and track each other closely, with no visible overfitting, but the
-final accuracy plateaus around 54\%, reflecting the model's limited
-representational capacity (only 83,126 parameters) for a 10-class colour
-image dataset.
+\textit{Inference:} LeNet-5's training and validation accuracy increase
+slowly and converges across iterations, with no overfitting, but the
+final accuracy plateaus around 54\%, reflecting the model's lower capacity.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{figs/fig_lenet5_cm.png}
 \end{figure}
 
-\textit{Inference:} LeNet-5 confuses visually similar classes such as
-cat/dog and automobile/truck most often, and performs relatively well on
+\textit{Inference:} LeNet-5 could not classify visually similar classes such as
+cat/dog and automobile/truck, but performs relatively well on
 more distinctive classes such as ship and automobile.
 
 \begin{figure}[H]
@@ -903,30 +899,28 @@ more distinctive classes such as ship and automobile.
 \includegraphics[width=0.95\textwidth]{figs/fig_alexnet_curves.png}
 \end{figure}
 
-\textit{Inference:} AlexNetMini shows a steady, well-behaved increase in
+\textit{Inference:} AlexNetMini shows a steady increase in
 accuracy and decrease in loss, reaching around 75\% training and
-validation accuracy by epoch 12 with almost no gap between the two
-curves, indicating good generalisation for a from-scratch model.
+validation accuracy by epoch 12, indicating good generalisation.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{figs/fig_alexnet_cm.png}
 \end{figure}
 
-\textit{Inference:} AlexNetMini achieves strong diagonal dominance across
+\textit{Inference:} AlexNetMini achieves good classification across
 most classes, with the main confusion remaining between cat, dog and bird,
-which are the classes with the greatest intra-class visual variability.
+which have lesser distinctive feature.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{figs/fig_resnetmini_curves.png}
 \end{figure}
 
-\textit{Inference:} Training for ResNetMini was stopped early (after 4 of
-12 epochs) by the \texttt{EarlyStopping} callback once validation loss
-stopped improving; the restored ``best'' weights nonetheless generalised
+\textit{Inference:} Training for ResNetMini was stopped early once validation loss
+stopped improving; the restored weights generalised
 poorly to the test set (47.26\% accuracy), suggesting the small residual
-model was not deep/regularised enough to be trained stably in so few
+model was not strong enough to be trained stably in so few
 epochs.
 
 \begin{figure}[H]
@@ -935,9 +929,8 @@ epochs.
 \end{figure}
 
 \textit{Inference:} ResNetMini's confusion matrix shows heavy bias toward
-a few classes (e.g. automobile, frog, ship), with the truck class almost
-never predicted correctly (recall $\approx$ 0.03), confirming the unstable,
-under-trained behaviour seen in the accuracy/loss curves.
+a few classes, with the truck class predicted poorly, proving the unstable,
+under-trained behaviour.
 
 \subsection*{17.2 Transfer Learning -- VGG16}
 
@@ -948,9 +941,7 @@ under-trained behaviour seen in the accuracy/loss curves.
 
 \textit{Inference:} With the convolutional base frozen, VGG16 already
 reaches roughly 84--86\% training accuracy and 83--84\% validation
-accuracy within 8 epochs, far exceeding all from-scratch baselines,
-demonstrating the value of ImageNet-pretrained features even without
-fine-tuning.
+accuracy within 8 epochs.
 
 \begin{figure}[H]
 \centering
@@ -958,8 +949,7 @@ fine-tuning.
 \end{figure}
 
 \textit{Inference:} The frozen VGG16 model is strong across nearly all
-classes, with the largest remaining confusion between cat and dog, which
-remains the hardest pair to separate throughout this experiment.
+classes, with the largest remaining confusion between cat and dog.
 
 \begin{figure}[H]
 \centering
@@ -967,9 +957,8 @@ remains the hardest pair to separate throughout this experiment.
 \end{figure}
 
 \textit{Inference:} After unfreezing the last convolution block, training
-accuracy climbs sharply to 96\% while validation accuracy reaches about
-91\%, a visible generalisation gap indicating mild overfitting, but the
-validation accuracy is still well above the frozen-backbone result.
+accuracy increases to 96\% while validation accuracy reaches about
+91\%, indicating mild overfitting.
 
 \begin{figure}[H]
 \centering
@@ -985,11 +974,6 @@ automobile, ship and truck, which now exceed 90\% recall.
 \includegraphics[width=0.95\textwidth]{figs/fig_vgg_misclassified.png}
 \end{figure}
 
-\textit{Inference:} Most misclassified images involve genuine visual
-ambiguity (e.g. a deer photographed against a similarly coloured
-background, a cat mistaken for a dog, or a car partly occluded), showing
-that many of the remaining errors are close to the irreducible difficulty
-of the $32\times32$ CIFAR-10 images rather than model deficiencies.
 
 \subsection*{17.3 Transfer Learning -- ResNet50}
 
@@ -998,29 +982,27 @@ of the $32\times32$ CIFAR-10 images rather than model deficiencies.
 \includegraphics[width=0.95\textwidth]{figs/fig_resnet50_frozen_curves.png}
 \end{figure}
 
-\textit{Inference:} ResNet50's frozen backbone converges even faster than
-VGG16's, reaching about 86-87\% validation accuracy within just 4 epochs,
-reflecting the strength of its residual ImageNet features.
+\textit{Inference:} ResNet50's frozen backbone converges faster than
+VGG16's, reaching about 86-87\% validation accuracy within just 4 epochs, proving that ResNet 50 is better than VGG16.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{figs/fig_resnet50_frozen_cm.png}
 \end{figure}
 
-\textit{Inference:} The frozen ResNet50 model shows a well-balanced
+\textit{Inference:} The frozen ResNet50 model gives a
 confusion matrix with high recall across most classes; cat and dog remain
-the most confused pair, consistent with the VGG16 results.
+the most confused pair.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{figs/fig_resnet50_ft_curves.png}
 \end{figure}
 
-\textit{Inference:} Fine-tuning the last 10 layers of ResNet50 yields a
-smaller additional gain than for VGG16, as the training and validation
-curves rise only modestly beyond the frozen-stage result, suggesting
-ResNet50's frozen features were already close to their achievable
-performance on CIFAR-10 at this image resolution.
+\textit{Inference:} Fine-tuning the last 10 layers of ResNet50 gives a
+minimal additional gain than for VGG16, as the training and validation
+curves rise only little beyond the frozen-stage result, suggesting
+ResNet50's frozen features were already close to their maximum performance.
 
 \begin{figure}[H]
 \centering
@@ -1039,11 +1021,10 @@ largest gains for the cat and dog classes.
 \end{figure}
 
 \textit{Inference:} Fine-tuning improves test accuracy for both
-backbones, but the effect is highly asymmetric: VGG16 gains substantially
-from fine-tuning (83.10\% $\rightarrow$ 90.26\%) and overtakes ResNet50,
+backbones, VGG16 gains substantially
+from fine-tuning and overtakes ResNet50,
 whereas ResNet50's frozen accuracy was already higher than VGG16's and it
-gains comparatively little from fine-tuning (84.41\% $\rightarrow$
-86.14\%).
+gains comparatively little from fine-tuning.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1144,21 +1125,6 @@ ResNet50 (Fine-Tuned, TL) & -- & 86.14 & 0.8614 & 0.8614 & 0.8613 & 194.3\\
 \end{tabular}
 
 \end{center}
-
-\textit{Note:} GoogleNet/Inception was not trained in this run; VGG16 and
-ResNet50 were selected as the two representative backbones for the
-transfer-learning tasks, as permitted by the Task~2 instructions.
-Parameter counts for ResNet50 were not captured by \texttt{model.summary()}
-in this notebook run and are therefore marked ``--''.
-
-\textit{Overall inference:} Transfer learning clearly outperforms
-training small CNNs from scratch on CIFAR-10 -- even the frozen VGG16
-and ResNet50 backbones (83--84\% accuracy) beat the best from-scratch
-baseline, AlexNetMini (75.26\%), by a wide margin, while requiring
-comparable or less training time. Fine-tuning the last convolutional
-block of the pretrained backbones improves accuracy further, with VGG16
-Fine-Tuned achieving the best overall test accuracy (90.26\%) in this
-experiment.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
