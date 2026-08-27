@@ -1134,26 +1134,35 @@ Answer the following questions.
 
 \begin{enumerate}
 
-\item Why is AlexNet considered a breakthrough in deep learning?
+\item Why is AlexNet considered a breakthrough in deep learning?\\
+AlexNet was considered a major breakthrough in Deep Learning, as it introduced the usage of ReLU activation function, introduction of dropouts, data augmentation, multiple CNN layers and parallel GPU training. These features of AlexNet improved the performance led to faster convergence, with a higher accuracy.
 
-\item Why does VGG16 use only $3\times3$ convolution filters?
+\item Why does VGG16 use only $3\times3$ convolution filters?\\
+VGG Net uses 3x3 filter because, it is proved efficient than larger filters by reducing the parameter size and using multiple 3x3 filter also increases the receptive field. VGG16 achieved good feature extraction using the 3x3 filter, proving its efficiency over larger filters.
 
-\item Explain the advantages of the Inception module.
+\item Explain the advantages of the Inception module.\\
+Inception module simultaneously uses multiple filters of different sizes, trains the model and is stacked together. The usage of 1x1 filter produces feature map that contains the most important feature. Thus Inception Module, provides a better feature extraction, pooling and better feature maps, keeping the computation less intensive.
 
-\item What is the purpose of residual learning?
+\item What is the purpose of residual learning?\\
+Residual Learning aids in skipping the connections that are not relevant for the training. It allows gradients to flow directly through shortcut connections, thereby reducing the vanishing gradient problem.
 
-\item Differentiate LeNet and ResNet.
+\item Differentiate LeNet and ResNet.\\
+LeNet is a primitive early stage CNN Network that has a shallow network with fewer layers. It works using convolution technique and pooling. On the other hand, ResNet is a much deeper architecture designed to train efficiently using residual connections. It has a deeper network with multiple layers, helping for large scale image recognition tasks. It uses skip connection which a key aspect of ResNet.
 
-\item What is Transfer Learning?
+\item What is Transfer Learning?\\
+Transfer Learning is a technique where a model trained on one task is reused for another related task. Instead of training a model from scratch, the pretrained model's learned features are reused. It reduces the training time at the same time provides a better accuracy.
 
-\item Why is fine tuning required?
+\item Why is fine tuning required?\\
+Fine-tuning is required because a pretrained model was originally trained for a different task. Fine-tuning helps in improving the accuracy for a task on top of the baseline accuracy while retaining the knowledge of pretrained model.
 
-\item Explain the difference between dilated convolution and transpose convolution.
+\item Explain the difference between dilated convolution and transpose convolution.\\
+A dilated convolution inserts spaces between kernel elements. It increases the receptive field without increasing the number of parameters. Transpose convolution, on the other hand, increases the spatial dimensions of feature maps.
 
-\item Why do pretrained models converge faster?
+\item Why do pretrained models converge faster?\\
+Pretrained models converges faster because they already have useful parameters learned from the previous dataset. Within a fewer epochs, a higher accuracy could be achieved due the prior knowledge of the task.
 
-\item Compare the computational complexity of LeNet and ResNet.
-
+\item Compare the computational complexity of LeNet and ResNet.\\
+LeNet is computationally less intensive as it has fewer layers and lesser parameters. ResNet on the other hand, contains many layers, has multiple convolutional blocks, and uses for processing huge dataset. Thus ResNet is computationally more intensive.
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
